@@ -23,7 +23,7 @@ const Dashboard: React.FC = () => {
     try {
       const response = await notesAPI.getNotes();
       setNotes(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Failed to fetch notes');
     } finally {
       setIsLoading(false);
@@ -35,8 +35,13 @@ const Dashboard: React.FC = () => {
       const response = await notesAPI.createNote(title, content);
       setNotes([response.data, ...notes]);
       toast.success('Note created successfully!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to create note');
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || 'Failed to create note');
+      } else {
+        toast.error('Failed to create note');
+      }
       throw error;
     }
   };
@@ -50,7 +55,7 @@ const Dashboard: React.FC = () => {
       await notesAPI.deleteNote(id);
       setNotes(notes.filter(note => note._id !== id));
       toast.success('Note deleted successfully!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Failed to delete note');
     }
   };

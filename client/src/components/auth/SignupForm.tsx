@@ -31,8 +31,13 @@ export const SignupForm: React.FC = () => {
       await authAPI.sendOTP(data.email);
       setOtpSent(true);
       toast.success('OTP sent to your email!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to send OTP');
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || 'Failed to send OTP');
+      } else {
+        toast.error('Failed to send OTP');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -49,11 +54,16 @@ export const SignupForm: React.FC = () => {
       );
       login(response.data.token, response.data.user);
       toast.success('Account created successfully!');
-    } catch (error: any) {
-      if (error.response?.status === 409) {
-        toast.error('This email is already registered. Please log in or use a different email.');
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        const err = error as { response?: { status?: number; data?: { message?: string } } };
+        if (err.response?.status === 409) {
+          toast.error('This email is already registered. Please log in or use a different email.');
+        } else {
+          toast.error(err.response?.data?.message || 'Failed to verify OTP');
+        }
       } else {
-        toast.error(error.response?.data?.message || 'Failed to verify OTP');
+        toast.error('Failed to verify OTP');
       }
     } finally {
       setIsLoading(false);

@@ -2,7 +2,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { notesAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 
 export default function LoginSuccess() {
@@ -32,7 +31,7 @@ export default function LoginSuccess() {
           login(token, userData);
           toast.success('Successfully logged in with Google!');
           router.push('/');
-        } catch (error) {
+        } catch {
           toast.error('Authentication failed');
           router.push('/');
         }
@@ -41,7 +40,7 @@ export default function LoginSuccess() {
     } else {
       router.push('/');
     }
-  }, []); // Only run once
+  }, [login, router, searchParams]); // Add all referenced dependencies
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">

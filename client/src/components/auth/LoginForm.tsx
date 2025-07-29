@@ -31,8 +31,13 @@ export const LoginForm: React.FC = () => {
       await authAPI.sendOTP(data.email);
       setOtpSent(true);
       toast.success('OTP sent to your email!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to send OTP');
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || 'Failed to send OTP');
+      } else {
+        toast.error('Failed to send OTP');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -48,8 +53,13 @@ export const LoginForm: React.FC = () => {
     try {
       await authAPI.sendOTP(email);
       toast.success('OTP resent to your email!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to resend OTP');
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || 'Failed to resend OTP');
+      } else {
+        toast.error('Failed to resend OTP');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -61,11 +71,16 @@ export const LoginForm: React.FC = () => {
       const response = await authAPI.verifyLoginOTP(data.email, data.otp || '');
       login(response.data.token, response.data.user);
       toast.success('Logged in successfully!');
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        toast.error('User not found. Please sign up.');
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error && 'response' in error) {
+        const err = error as { response?: { status?: number; data?: { message?: string } } };
+        if (err.response?.status === 404) {
+          toast.error('User not found. Please sign up.');
+        } else {
+          toast.error(err.response?.data?.message || 'Failed to verify OTP');
+        }
       } else {
-        toast.error(error.response?.data?.message || 'Failed to verify OTP');
+        toast.error('Failed to verify OTP');
       }
     } finally {
       setIsLoading(false);
