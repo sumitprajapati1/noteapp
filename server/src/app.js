@@ -8,8 +8,7 @@ import './config/passport.js';
 const app = express();
 
 app.use(cors({
-  // origin: ['http://localhost:3000', 'https://noteapp-yd7e.vercel.app/'], // Update this to your frontend URL if different
-  origin: "*",
+  origin: ['http://localhost:3000', 'https://noteapp-yd7e.vercel.app'], // Specific origins for credentials
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
